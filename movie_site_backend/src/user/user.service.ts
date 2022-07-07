@@ -11,8 +11,6 @@ import { CreateUserDto } from './dto/create-user.dto';
 export class UserService {
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
-  saltRounds = 10;
-
   async create(createUserDto: CreateUserDto): Promise<UserDocument> {
     const saltRounds = 10;
     const salt = await bcrypt.genSalt(saltRounds);
@@ -29,7 +27,10 @@ export class UserService {
     return await this.userModel.findById(id).exec();
   }
 
-  async findByEmailAndPassword(email: string, password: string) {
+  async findByEmailAndPassword(
+    email: string,
+    password: string,
+  ): Promise<UserDocument | null> {
     const user = await this.userModel.findOne({ email });
     const identocalPasswords = bcrypt.compare(password, user.password);
 

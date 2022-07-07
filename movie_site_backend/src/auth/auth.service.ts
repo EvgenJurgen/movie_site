@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { TokenService } from '../token/token.service';
 import { CreateUserDto } from '../user/dto/create-user.dto';
@@ -9,7 +9,7 @@ import { tokens } from './constants/tokensOptions';
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly jwtService: JwtService,
+    private jwtService: JwtService,
     private readonly userService: UserService,
     private readonly tokenService: TokenService,
   ) {}
@@ -23,7 +23,9 @@ export class AuthService {
     const user = await this.userService.findByEmailAndPassword(email, password);
 
     if (!user) {
-      throw new Error('User with this email and password not found');
+      throw new ForbiddenException(
+        'User with this email and password not found',
+      );
     }
 
     const accessToken = await this.generateAccessToken(user._id.toHexString());
@@ -37,19 +39,23 @@ export class AuthService {
     return { accessToken, refreshToken: refreshToken.token };
   }
 
+  async logout(tokenId: string) {
+    return await this.tokenService.removeDbRefreshTokenByTokenId(tokenId);
+  }
+
   async refreshTokens(refreshToken: string) {
     const { id, type } = this.jwtService.verify(refreshToken, {
-      secret: process.env.JWT_SECRET,
+      secret: process.env.REFRESH_JWT_SECRET,
     });
 
     if (type !== tokens.refresh.type) {
-      throw new Error('Invalid token');
+      throw new ForbiddenException('Invalid token');
     }
 
     const token = await this.tokenService.findById(id);
 
     if (!token) {
-      throw new Error('Invalid token');
+      throw new ForbiddenException('Invalid token');
     }
 
     const accessToken = await this.generateAccessToken(token.userId);
@@ -60,7 +66,7 @@ export class AuthService {
       token.userId,
     );
 
-    return { refreshToken: newRefreshToken.token, accessToken };
+    return { accessToken, refreshToken: newRefreshToken.token };
   }
 
   private async generateAccessToken(userId: string) {
@@ -72,7 +78,7 @@ export class AuthService {
     console.log(payload);
 
     const options = {
-      secret: process.env.JWT_SECRET,
+      secret: process.env.ACCESS_JWT_SECRET,
       expiresIn: tokens.access.expriresIn,
     };
 
@@ -86,7 +92,7 @@ export class AuthService {
     };
 
     const options = {
-      secret: process.env.JWT_SECRET,
+      secret: process.env.REFRESH_JWT_SECRET,
       expiresIn: tokens.refresh.expriresIn,
     };
 
@@ -94,14 +100,5 @@ export class AuthService {
       id: payload.id,
       token: this.jwtService.sign(payload, options),
     };
-  }
-
-  private async updateTokens(userId: string) {
-    const accessToken = await this.generateAccessToken(userId);
-    const refreshToken = await this.generateRefreshToken();
-
-    await this.tokenService.replaceDbRefreshToken(refreshToken.id, userId);
-
-    return { accessToken, refreshToken: refreshToken.token };
   }
 }
