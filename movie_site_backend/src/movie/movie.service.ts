@@ -1,10 +1,11 @@
 import { HttpService } from '@nestjs/axios';
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { AddRatingDto } from './dto/add-rating.dto';
 import { Movie, MovieDocument } from './schemas/movie.schema';
 import * as _ from 'lodash';
+import { FilmsIdInterface } from './interfaces/films-id.interface';
 
 @Injectable()
 export class MovieService {
@@ -13,7 +14,7 @@ export class MovieService {
     @InjectModel(Movie.name) private movieModel: Model<MovieDocument>,
   ) {}
 
-  async getFilmsIdByTitle(title: string): Promise<{ filmsId: number[] }> {
+  async getFilmsIdByTitle(title: string): Promise<FilmsIdInterface> {
     const response = await this.httpService.axiosRef.get(
       `https://kinopoiskapiunofficial.tech/api/v2.1/films/search-by-keyword?keyword=${encodeURIComponent(
         title,
@@ -131,11 +132,11 @@ export class MovieService {
   async removeARatingByKinopoiskIdAndUserId(
     kinopoiskId: number,
     userId: string,
-  ) {
+  ): Promise<MovieDocument> {
     const film = await this.movieModel.findOne({ kinopoiskId });
 
     if (!film) {
-      throw new ForbiddenException('The rating of this film not found');
+      throw new NotFoundException('The rating of this film not found');
     }
 
     const appraiser = film.appraisers.find(
