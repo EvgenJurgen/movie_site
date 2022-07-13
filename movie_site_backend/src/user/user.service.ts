@@ -32,6 +32,11 @@ export class UserService {
     password: string,
   ): Promise<UserDocument | null> {
     const user = await this.userModel.findOne({ email });
+
+    if (!user) {
+      return null;
+    }
+
     const identocalPasswords = bcrypt.compare(password, user.password);
 
     if (identocalPasswords) {

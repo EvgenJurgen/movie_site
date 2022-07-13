@@ -55,6 +55,7 @@ export class AuthService {
 
     await this.tokenService.saveDbRefreshToken(
       refreshToken.id,
+      refreshToken.exp,
       user._id.toHexString(),
     );
 
@@ -85,6 +86,7 @@ export class AuthService {
 
     await this.tokenService.replaceDbRefreshToken(
       newRefreshToken.id,
+      newRefreshToken.exp,
       token.userId,
     );
 
@@ -107,7 +109,7 @@ export class AuthService {
     return this.jwtService.sign(payload, options);
   }
 
-  private generateRefreshToken(): { id: string; token: string } {
+  private generateRefreshToken(): { id: string; exp: number; token: string } {
     const payload = {
       id: uuidv4(),
       type: tokens.refresh.type,
@@ -118,9 +120,12 @@ export class AuthService {
       expiresIn: tokens.refresh.expriresIn,
     };
 
+    const token = this.jwtService.sign(payload, options);
+
     return {
       id: payload.id,
-      token: this.jwtService.sign(payload, options),
+      exp: this.jwtService.decode(token)['exp'],
+      token: token,
     };
   }
 }

@@ -7,11 +7,11 @@ export type UserDocument = User & Document;
 @Schema()
 export class User {
   @Prop({ required: true })
-  @ApiProperty()
+  @ApiProperty({ example: 'test_email@gmail.com' })
   email: string;
 
   @Prop({ required: true })
-  @ApiProperty()
+  @ApiProperty({ example: 'test_password' })
   password: string;
 }
 

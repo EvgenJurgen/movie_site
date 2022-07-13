@@ -3,10 +3,10 @@ import { IsString } from 'class-validator';
 
 export class CreateTokenDto {
   @IsString()
-  @ApiProperty({ example: 'jwt.token' })
+  @ApiProperty({ example: 'uuid4 token id' })
   tokenId: string;
 
   @IsString()
-  @ApiProperty({ example: 'uuid4 token' })
+  @ApiProperty({ example: 'user_id' })
   userId: string;
 }

@@ -108,10 +108,6 @@ export class MovieService {
         _.assignIn(film, {
           totalRating: film.totalRating + addRatingDto.rating,
           numberOfAppraisers: film.numberOfAppraisers + 1,
-          // appraisers: film.appraisers.push({
-          //   userId,
-          //   rating: addRatingDto.rating,
-          // }),
           appraisers: [
             ...film.appraisers,
             { userId, rating: addRatingDto.rating },

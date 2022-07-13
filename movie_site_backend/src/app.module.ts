@@ -8,6 +8,7 @@ import { TokenModule } from './token/token.module';
 import { MovieModule } from './movie/movie.module';
 import { APP_GUARD } from '@nestjs/core';
 import { AccessTokenGuard } from './common/guards';
+import { ScheduleModule } from '@nestjs/schedule';
 
 const environment = process.env.NODE_ENV || 'development';
 
@@ -15,13 +16,14 @@ const environment = process.env.NODE_ENV || 'development';
   imports: [
     UserModule,
     AuthModule,
+    TokenModule,
+    MovieModule,
     ConfigModule.forRoot({
       envFilePath: `.env.${environment}`,
       isGlobal: true,
     }),
     MongooseModule.forRoot(process.env.MONGODB_URL),
-    TokenModule,
-    MovieModule,
+    ScheduleModule.forRoot(),
   ],
   providers: [{ provide: APP_GUARD, useClass: AccessTokenGuard }],
 })

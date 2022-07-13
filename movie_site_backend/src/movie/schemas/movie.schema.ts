@@ -5,25 +5,25 @@ import { Document } from 'mongoose';
 export type MovieDocument = Movie & Document;
 
 export class Appraiser {
-  @ApiProperty()
+  @ApiProperty({ example: 'user_id' })
   userId: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: 10 })
   rating: number;
 }
 
 @Schema()
 export class Movie {
   @Prop()
-  @ApiProperty()
+  @ApiProperty({ example: 404900 })
   kinopoiskId: number;
 
   @Prop()
-  @ApiProperty()
+  @ApiProperty({ example: 10 })
   totalRating: number;
 
   @Prop()
-  @ApiProperty()
+  @ApiProperty({ example: 1 })
   numberOfAppraisers: number;
 
   @Prop()

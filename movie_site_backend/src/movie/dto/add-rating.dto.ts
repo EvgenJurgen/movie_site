@@ -3,7 +3,7 @@ import { IsNumber, Max, Min } from 'class-validator';
 
 export class AddRatingDto {
   @IsNumber()
-  @ApiProperty({ example: 1 })
+  @ApiProperty({ example: 404900 })
   kinopoiskId: number;
 
   @IsNumber()

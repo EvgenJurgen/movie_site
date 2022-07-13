@@ -3,11 +3,11 @@ import {
   ApiBearerAuth,
   ApiCreatedResponse,
   ApiOkResponse,
-  ApiProperty,
   ApiTags,
 } from '@nestjs/swagger';
 import { GetCurrentUser } from '../common/decorators';
 import { AddRatingDto } from './dto/add-rating.dto';
+import { MovieDto } from './dto/movie.dto';
 import { RemoveRatingDto } from './dto/remove-rating.dto';
 import { FilmsId } from './entities/films-id.entity';
 import { FilmsIdInterface } from './interfaces/films-id.interface';
@@ -53,7 +53,7 @@ export class MovieController {
   @Post('/add-rating')
   @ApiCreatedResponse({
     description: 'Adding a movie rating to the database by kinopoisk id',
-    type: Movie,
+    type: MovieDto,
   })
   async addARatingToAFilm(
     @Body() addRatingDto: AddRatingDto,
@@ -65,7 +65,7 @@ export class MovieController {
   @Get('/:id/get-rating')
   @ApiOkResponse({
     description: 'Getting a movie rating from a database by kinopoisk id',
-    type: Movie,
+    type: MovieDto,
   })
   async getARatingByKinopoiskId(
     @Param('id') kinopoiskId: number,
@@ -76,7 +76,7 @@ export class MovieController {
   @Delete('/remove-rating')
   @ApiOkResponse({
     description: "Deleting a user's rating about a movie from the database",
-    type: Movie,
+    type: MovieDto,
   })
   async removeRatingFromAFilm(
     @Body() removeRatingDto: RemoveRatingDto,

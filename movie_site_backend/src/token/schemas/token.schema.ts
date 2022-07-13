@@ -7,11 +7,15 @@ export type TokenDocument = Token & Document;
 @Schema()
 export class Token {
   @Prop()
-  @ApiProperty()
+  @ApiProperty({ example: 'uuid4 token id' })
   tokenId: string;
 
   @Prop()
-  @ApiProperty()
+  @ApiProperty({ example: 1000000000 })
+  exp: number;
+
+  @Prop()
+  @ApiProperty({ example: 'user_id' })
   userId: string;
 }
 

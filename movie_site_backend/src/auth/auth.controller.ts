@@ -12,11 +12,12 @@ import { GetCurrentUser, Public } from '../common/decorators';
 import { RefreshTokenGuard } from '../common/guards';
 import { TokenDocument } from '../token/schemas/token.schema';
 import { CreateUserDto } from '../user/dto/create-user.dto';
-import { User, UserDocument } from '../user/schemas/user.schema';
+import { UserDocument } from '../user/schemas/user.schema';
 import { AuthService } from './auth.service';
 import { PairOfTokens } from './entities/pair-of-tokens.entity';
 import { PairOfTokensInterface } from './interfaces/pair-of-tokens.interface';
-import { Token } from '../token/schemas/token.schema';
+import { UserDto } from '../user/dto/user.dto';
+import { TokenDto } from '../token/dto/token.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -27,7 +28,7 @@ export class AuthController {
   @Post('/signUp')
   @ApiCreatedResponse({
     description: 'The new user is placed in the mongo database',
-    type: User,
+    type: UserDto,
   })
   @ApiConflictResponse({
     description: 'User with this email or password already exists',
@@ -74,7 +75,7 @@ export class AuthController {
   @ApiBearerAuth('refresh-token')
   @ApiOkResponse({
     description: 'Document with this refresh token should be deleted',
-    type: Token,
+    type: TokenDto,
   })
   async logout(@GetCurrentUser('id') tokenId: string): Promise<TokenDocument> {
     return this.authService.logout(tokenId);
