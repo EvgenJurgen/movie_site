@@ -14,6 +14,22 @@ export class MovieService {
     @InjectModel(Movie.name) private movieModel: Model<MovieDocument>,
   ) {}
 
+  async getTopFilms(page: number) {
+    const response = await this.httpService.axiosRef.get(
+      `https://kinopoiskapiunofficial.tech/api/v2.2/films/top?page=${page}`,
+      {
+        headers: {
+          'X-API-KEY': 'e2acd2c1-ca72-49dc-991e-5425ae06b875',
+          'Content-Type': 'application/json',
+        },
+      },
+    );
+
+    console.log(response.data.films.length);
+
+    return response.data;
+  }
+
   async getFilmsIdByTitle(title: string): Promise<FilmsIdInterface> {
     const response = await this.httpService.axiosRef.get(
       `https://kinopoiskapiunofficial.tech/api/v2.1/films/search-by-keyword?keyword=${encodeURIComponent(

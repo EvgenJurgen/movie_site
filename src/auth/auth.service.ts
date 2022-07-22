@@ -22,7 +22,7 @@ export class AuthService {
     private readonly tokenService: TokenService,
   ) {}
 
-  async signUp(createUserDto: CreateUserDto): Promise<UserDocument> {
+  async signUp(createUserDto: CreateUserDto): Promise<PairOfTokensInterface> {
     const userFromDatabase = await this.userService.findByEmailAndPassword(
       createUserDto.email,
       createUserDto.password,
@@ -35,7 +35,17 @@ export class AuthService {
     }
 
     const user = await this.userService.create(createUserDto);
-    return user;
+
+    const accessToken = this.generateAccessToken(user._id.toHexString());
+    const refreshToken = this.generateRefreshToken();
+
+    await this.tokenService.saveDbRefreshToken(
+      refreshToken.id,
+      refreshToken.exp,
+      user._id.toHexString(),
+    );
+
+    return { accessToken, refreshToken: refreshToken.token };
   }
 
   async signIn(

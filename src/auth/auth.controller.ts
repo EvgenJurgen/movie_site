@@ -8,15 +8,13 @@ import {
   ApiOkResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { GetCurrentUser, Public } from '../common/decorators';
+import { GetCurrentUser } from '../common/decorators';
 import { RefreshTokenGuard } from '../common/guards';
 import { TokenDocument } from '../token/schemas/token.schema';
 import { CreateUserDto } from '../user/dto/create-user.dto';
-import { UserDocument } from '../user/schemas/user.schema';
 import { AuthService } from './auth.service';
 import { PairOfTokens } from './entities/pair-of-tokens.entity';
 import { PairOfTokensInterface } from './interfaces/pair-of-tokens.interface';
-import { UserDto } from '../user/dto/user.dto';
 import { TokenDto } from '../token/dto/token.dto';
 
 @ApiTags('auth')
@@ -24,20 +22,20 @@ import { TokenDto } from '../token/dto/token.dto';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Public()
   @Post('/signUp')
   @ApiCreatedResponse({
     description: 'The new user is placed in the mongo database',
-    type: UserDto,
+    type: PairOfTokens,
   })
   @ApiConflictResponse({
     description: 'User with this email or password already exists',
   })
-  async signUp(@Body() createUserDto: CreateUserDto): Promise<UserDocument> {
-    return await this.authService.signUp(createUserDto);
+  async signUp(
+    @Body() createUserDto: CreateUserDto,
+  ): Promise<PairOfTokensInterface> {
+    return this.authService.signUp(createUserDto);
   }
 
-  @Public()
   @Post('/signIn')
   @ApiCreatedResponse({
     description: 'A pair of tokens has been generated',
@@ -52,7 +50,6 @@ export class AuthController {
     return this.authService.signIn(createUserDto.email, createUserDto.password);
   }
 
-  @Public()
   @UseGuards(RefreshTokenGuard)
   @Post('/refresh-tokens')
   @ApiBearerAuth('refresh-token')
@@ -69,7 +66,6 @@ export class AuthController {
     return this.authService.refreshTokens(refreshToken);
   }
 
-  @Public()
   @UseGuards(RefreshTokenGuard)
   @Delete('/logout')
   @ApiBearerAuth('refresh-token')

@@ -1,4 +1,13 @@
-import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiCreatedResponse,
@@ -6,19 +15,24 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { GetCurrentUser } from '../common/decorators';
+import { AccessTokenGuard } from '../common/guards';
 import { AddRatingDto } from './dto/add-rating.dto';
 import { MovieDto } from './dto/movie.dto';
 import { RemoveRatingDto } from './dto/remove-rating.dto';
 import { FilmsId } from './entities/films-id.entity';
 import { FilmsIdInterface } from './interfaces/films-id.interface';
 import { MovieService } from './movie.service';
-import { Movie, MovieDocument } from './schemas/movie.schema';
+import { MovieDocument } from './schemas/movie.schema';
 
 @ApiTags('movie')
 @Controller('movie')
-@ApiBearerAuth('access-token')
 export class MovieController {
   constructor(private readonly movieService: MovieService) {}
+
+  @Get('/top')
+  async getTopFilms(@Query('page') page: number) {
+    return this.movieService.getTopFilms(page);
+  }
 
   @Get('/:title')
   @ApiOkResponse({
@@ -28,7 +42,7 @@ export class MovieController {
   async getFilmsIdByTitle(
     @Param('title') title: string,
   ): Promise<FilmsIdInterface> {
-    return await this.movieService.getFilmsIdByTitle(title);
+    return this.movieService.getFilmsIdByTitle(title);
   }
 
   @Get('/about-film/:id')
@@ -36,7 +50,7 @@ export class MovieController {
     description: 'Getting information about a movie by kinopoisk id',
   })
   async getInformationAboutTheFilmById(@Param('id') filmId: number) {
-    return await this.movieService.getInformationAboutTheFilmById(filmId);
+    return this.movieService.getInformationAboutTheFilmById(filmId);
   }
 
   @Get('/:id/about-seasons')
@@ -45,11 +59,11 @@ export class MovieController {
       'Getting information about the seasons of the series by kinopoisk id',
   })
   async getInformationAboutSeasonsBySerialId(@Param('id') serialId: number) {
-    return await this.movieService.getInformationAboutSeasonsBySerialId(
-      serialId,
-    );
+    return this.movieService.getInformationAboutSeasonsBySerialId(serialId);
   }
 
+  @UseGuards(AccessTokenGuard)
+  @ApiBearerAuth('access-token')
   @Post('/add-rating')
   @ApiCreatedResponse({
     description: 'Adding a movie rating to the database by kinopoisk id',
@@ -59,7 +73,7 @@ export class MovieController {
     @Body() addRatingDto: AddRatingDto,
     @GetCurrentUser('userId') userId: string,
   ): Promise<MovieDocument> {
-    return await this.movieService.addARatingToAFilm(userId, addRatingDto);
+    return this.movieService.addARatingToAFilm(userId, addRatingDto);
   }
 
   @Get('/:id/get-rating')
@@ -70,9 +84,11 @@ export class MovieController {
   async getARatingByKinopoiskId(
     @Param('id') kinopoiskId: number,
   ): Promise<MovieDocument> {
-    return await this.movieService.getARatingByKinopoiskId(kinopoiskId);
+    return this.movieService.getARatingByKinopoiskId(kinopoiskId);
   }
 
+  @UseGuards(AccessTokenGuard)
+  @ApiBearerAuth('access-token')
   @Delete('/remove-rating')
   @ApiOkResponse({
     description: "Deleting a user's rating about a movie from the database",
@@ -82,7 +98,7 @@ export class MovieController {
     @Body() removeRatingDto: RemoveRatingDto,
     @GetCurrentUser('userId') userId: string,
   ): Promise<MovieDocument> {
-    return await this.movieService.removeARatingByKinopoiskIdAndUserId(
+    return this.movieService.removeARatingByKinopoiskIdAndUserId(
       removeRatingDto.kinopoiskId,
       userId,
     );
