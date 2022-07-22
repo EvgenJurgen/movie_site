@@ -24,8 +24,8 @@ import { FilmsIdInterface } from './interfaces/films-id.interface';
 import { MovieService } from './movie.service';
 import { MovieDocument } from './schemas/movie.schema';
 
-@ApiTags('movie')
-@Controller('movie')
+@ApiTags('movies')
+@Controller('movies')
 export class MovieController {
   constructor(private readonly movieService: MovieService) {}
 
